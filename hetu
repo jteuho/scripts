@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+
+sub create_end($$);
+sub add_check($);
+
+my $checks = {
+	0  => '0', 1  => '1', 2  => '2', 3  => '3', 4  => '4',
+	5  => '5', 6  => '6', 7  => '7', 8  => '8', 9  => '9',
+	10 => 'A', 11 => 'B', 12 => 'C', 13 => 'D', 14 => 'E',
+	15 => 'F', 16 => 'H', 17 => 'J', 18 => 'K', 19 => 'L',
+	20 => 'M', 21 => 'N', 22 => 'P', 23 => 'R', 24 => 'S',
+	25 => 'T', 26 => 'U', 27 => 'V', 28 => 'W', 29 => 'X',
+	30 => 'Y'
+};
+
+my $hetu = 0;
+my $invalid = 0;
+my $sex = 'e';
+
+GetOptions ("hetu=s" => \$hetu,
+		"sex=s" => \$sex,
+		"invalid" => \$invalid)
+		or die ("Error in cmd line args");
+
+if ( ! $hetu ) {
+	my $pp = int(rand(27)) + 1;
+	my $kk = int(rand(11)) + 1;
+	my $vv = int(rand(99));
+	$hetu = sprintf("%02d%02d%02d-%03d", $pp, $kk, $vv, create_end($invalid, $sex));
+} elsif (length($hetu) == 6) {
+	my $end = int(rand(998)) + 1;
+	$hetu = sprintf("$hetu-%03d", create_end($invalid, $sex));
+} else {
+	die ("Invalid hetu\n") 
+		unless ($hetu =~ m/^[0123][0-9][01][0-9]{3}[A+-][0-9]{3}.?$/);
+}
+
+if (length($hetu) == 10) {
+	$hetu = add_check($hetu);
+} else {
+	my $short_hetu = substr($hetu, 0, 10);
+	my $fixed_hetu = add_check($short_hetu);
+	die ("Invalid hetu")
+		unless ($hetu eq $fixed_hetu);
+}	
+
+print "$hetu\n";
+system("/bin/echo -n $hetu | /usr/bin/pbcopy");
+
+sub add_check($) {
+	my ($hetu) = @_;
+	my $hetu_num = $hetu;
+	$hetu_num =~ s/([0-9]{6}).([0-9]{3})/$1$2/;
+	my $rem = $hetu_num % 31;
+	return $hetu . $checks->{$rem};
+}
+
+sub create_end($$) {
+	my ($invalid, $sex) = @_;
+	my $first_digits = $invalid
+		? int(rand(9)) + 90
+		: int (rand(99)) + 1;
+	my $last_digit = 0;
+	while () {
+		$last_digit = int(rand(9));
+		if ($sex eq 'f') {
+		       last if ($last_digit % 2 == 0);
+       		} elsif ($sex eq 'm') {
+			last if ($last_digit % 2 == 1);
+		} else {
+			last;
+		}
+	}
+	return "$first_digits" . "$last_digit";
+}
