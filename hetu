@@ -49,7 +49,12 @@ if (length($hetu) == 10) {
 }	
 
 print "$hetu\n";
-system("/bin/echo -n $hetu | /usr/bin/pbcopy");
+
+if (-x '/usr/bin/pbcopy') {
+	system("/bin/echo -n $hetu | /usr/bin/pbcopy");
+} elsif (-x '/usr/bin/xclip') {
+	system("/bin/echo -n $hetu | /usr/bin/xclip");
+}
 
 sub add_check($) {
 	my ($hetu) = @_;
