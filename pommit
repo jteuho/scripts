@@ -9,7 +9,7 @@ do
 	case $OPT in
 		i)
 			echo Initializing .pommit_projs
-			find . -type d -depth 1 -exec echo 'PROJS="$PROJS {}"' ';' | tee .pommit_projs
+			find . -type d -maxdepth 1 -exec echo 'PROJS="$PROJS {}"' ';' | tee .pommit_projs
 			echo done
 			exit 0
 			;;
