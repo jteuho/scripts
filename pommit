@@ -1,6 +1,8 @@
 #!/bin/bash
 
-git_update="pwd"
+set -e
+
+git_update=""
 git_status=""
 mvn_build=""
 init=""
@@ -32,7 +34,7 @@ if [[ -f .pommit_projs ]];
 then
 	. .pommit_projs
 else
-	echo "Not initalized."
+	echo "Not initialized."
 	exit 1
 fi
 
