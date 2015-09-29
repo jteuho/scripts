@@ -6,14 +6,20 @@ git_update=""
 git_status=""
 mvn_build=""
 init=""
-while getopts "bgsti" OPT;
+exclude=""
+while getopts "bgstie:" OPT;
 do
 	case $OPT in
 		i)
 			echo Initializing .pommit_projs
-			find . -type d -maxdepth 1 -exec echo 'PROJS="$PROJS {}"' ';' | tee .pommit_projs
+			find . -type d -maxdepth 1 -mindepth 1 -exec echo 'PROJS="$PROJS {}"' ';' \
+				| sed -e s_\./__ \
+				| tee .pommit_projs
 			echo done
 			exit 0
+			;;
+		e)
+			exclude="$exclude $OPTARG"
 			;;
 		b)
 			mvn_build="mvn clean install"
@@ -42,6 +48,11 @@ if [[ ! -z "$git_status" ]];
 then
 	for pro in $PROJS;
 	do
+		if [[ $exclude == *"$pro"* ]];
+		then
+			echo $pro excluded
+			continue
+		fi
 		(cd $pro; pwd; $git_status; echo -e "";)
 	done
 	exit 1
