@@ -2,12 +2,13 @@
 
 set -e
 
-git_update=""
+git_update="/bin/true"
 git_status=""
 mvn_build=""
 init=""
 exclude=""
-while getopts "bgstie:" OPT;
+git_fetch="/bin/true"
+while getopts "bgstife:" OPT;
 do
 	case $OPT in
 		i)
@@ -26,6 +27,9 @@ do
 			;;
 		g)
 			git_update="git pull --rebase"
+			;;
+		f)
+			git_fetch="git fetch"
 			;;
 		s)
 			git_status="git status -sb"
@@ -53,12 +57,12 @@ then
 			echo $pro excluded
 			continue
 		fi
-		(cd $pro; pwd; $git_status; echo -e "";)
+		(cd $pro && pwd && $git_fetch && $git_status && echo -e "")
 	done
 	exit 1
 fi
 
 for pro in $PROJS; 
 do
-	(cd $pro; $git_update; $mvn_build)
+	(cd $pro && $git_update && $mvn_build)
 done
