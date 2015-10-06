@@ -64,5 +64,10 @@ fi
 
 for pro in $PROJS; 
 do
+	if [[ $exclude == *"$pro"* ]];
+	then
+		echo $pro excluded
+		continue
+	fi
 	(cd $pro && $git_update && $mvn_build)
 done
