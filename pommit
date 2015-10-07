@@ -69,5 +69,17 @@ do
 		echo $pro excluded
 		continue
 	fi
-	(cd $pro && $git_update && $mvn_build)
+	pushd $pro
+	if [[ ! -z "$git_update" ]];
+	then
+		$git_update || continue
+	fi
+	if [[ ! -z "$mvn_build" ]];
+	then
+		if [[ -f "pom.xml" ]];
+		then
+			$mvn_build
+		fi
+	fi
+	popd
 done
