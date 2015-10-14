@@ -7,11 +7,12 @@ git_status=""
 mvn_build=""
 init=""
 exclude=""
+include=""
 git_fetch="true"
-while getopts "bgstife:" OPT;
+while getopts "abcgsti:fe:" OPT;
 do
 	case $OPT in
-		i)
+		a)
 			echo Initializing .pommit_projs
 			find . -type d -maxdepth 1 -mindepth 1 -exec echo 'PROJS="$PROJS {}"' ';' \
 				| sed -e s_\./__ \
@@ -22,8 +23,14 @@ do
 		e)
 			exclude="$exclude $OPTARG"
 			;;
+		i)
+			include="$include $OPTARG "
+			;;
 		b)
 			mvn_build="mvn clean install"
+			;;
+		c)
+			mvn_build="mvn clean"
 			;;
 		g)
 			git_update="git pull --rebase"
@@ -57,6 +64,11 @@ then
 			echo $pro excluded
 			continue
 		fi
+		if [[ ! -z "$include" && $include != *" $pro "* ]];
+		then
+			echo $pro not included
+			continue
+		fi
 		(cd $pro && pwd && $git_fetch && $git_status && echo -e "")
 	done
 	exit 1
@@ -69,10 +81,16 @@ do
 		echo $pro excluded
 		continue
 	fi
+	if [[ ! -z "$include" && $include != *" $pro "* ]];
+	then
+		echo $pro not included
+		continue
+	fi
+
 	pushd $pro
 	if [[ ! -z "$git_update" ]];
 	then
-		$git_update || continue
+		$git_update
 	fi
 	if [[ ! -z "$mvn_build" ]];
 	then
