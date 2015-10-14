@@ -21,10 +21,12 @@ do
 			exit 0
 			;;
 		e)
+			pro=`echo $OPTARG | sed -e 's_/$__'`
 			exclude="$exclude $OPTARG"
 			;;
 		i)
-			include="$include $OPTARG "
+			pro=`echo $OPTARG | sed -e 's_/$__'`
+			include="$include $pro "
 			;;
 		b)
 			mvn_build="mvn clean install"
