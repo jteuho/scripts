@@ -22,7 +22,7 @@ do
 			;;
 		e)
 			pro=`echo $OPTARG | sed -e 's_/$__'`
-			exclude="$exclude $OPTARG"
+			exclude="$exclude $pro"
 			;;
 		i)
 			pro=`echo $OPTARG | sed -e 's_/$__'`
