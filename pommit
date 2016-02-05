@@ -9,7 +9,7 @@ init=""
 exclude=""
 include=""
 git_fetch="true"
-while getopts "abcgsti:fe:" OPT;
+while getopts "abcgstpi:fe:" OPT;
 do
 	case $OPT in
 		a)
@@ -45,6 +45,9 @@ do
 			;;
 		t)
 			git_status="git stash list"
+			;;
+		p)
+			git_update="git push"
 			;;
 	esac
 done
