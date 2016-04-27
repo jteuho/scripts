@@ -29,7 +29,7 @@ do
 			include="$include $pro "
 			;;
 		b)
-			mvn_build="mvn clean install"
+			mvn_build="mvn install"
 			;;
 		c)
 			mvn_build="mvn clean"
