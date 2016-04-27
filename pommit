@@ -9,7 +9,7 @@ init=""
 exclude=""
 include=""
 git_fetch="true"
-while getopts "abcgstpi:fe:" OPT;
+while getopts "abcgstpri:fe:" OPT;
 do
 	case $OPT in
 		a)
@@ -49,6 +49,9 @@ do
 		p)
 			git_update="git push"
 			;;
+		r)
+			git_status="git branch -vv"
+			;;
 	esac
 done
 
@@ -79,7 +82,7 @@ then
 	exit 1
 fi
 
-for pro in $PROJS; 
+for pro in $PROJS;
 do
 	if [[ $exclude == *"$pro"* ]];
 	then
