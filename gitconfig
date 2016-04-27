@@ -1,18 +1,15 @@
 [alias]
-  ci = commit
-  st = status
-  co = checkout
-  br = branch
-  summary = log --pretty='format:%C(bold green)%h%Creset %Cred%ad%Creset - %s%C(yellow)%d%Creset %C(bold red)<%an>'
-  sum = log --pretty='format:%C(bold green)%h%Creset %Cred%ad%Creset - %s%C(bold yellow)%d%Creset %C(bold red)<%an>' --date=relative
-  csum = log --pretty='format:%C(bold green)%h%Creset %Cred%ad %C(blue)%cd%Creset - %s%C(bold yellow)%d%Creset %C(bold red)<%an> %C(bold blue)<%cn>' --date=relative
-  csumg = log --pretty='format:%C(bold green)%h%Creset %Cred%ad %C(blue)%cd%Creset - %s%C(bold yellow)%d%Creset %C(bold red)<%an> %C(bold blue)<%cn>' --date=relative --graph
-  commit = commit --verbose
-  amend = commit --verbose --amend
-  glog = log --graph --pretty=oneline --abbrev-commit --decorate
-  gla = log --graph --pretty=format:'%C(bold green)%h%Creset - %s%C(bold yellow)%d%Creset %C(bold blue)(%cr)%Creset %C(bold red)<%an>%Creset' --abbrev-commit --date=short --branches
-  wdiff = diff --word-diff
-  df = diff
-  lg = log -p
-  ls = ls-files
-  lolpull = !git stash && git pull --rebase && git stash pop
+    ci = commit
+    st = status
+    co = checkout
+    br = branch
+    df = diff
+    summary = log --pretty='format:%C(bold green)%h%Creset %Cred%ad%Creset - %s%C(yellow)%d%Creset %C(bold red)<%an>'
+    commit = commit --verbose
+    amend = commit --verbose --amend
+    glog = log --graph --pretty=oneline --abbrev-commit --decorate
+    gla = log --graph --pretty=format:'%C(bold green)%h%Creset - %s%C(bold yellow)%d%Creset %C(bold blue)(%cr)%Creset %C(bold red)<%an>%Creset' --abbrev-commit --date=short --branches
+    wdiff = diff --word-diff
+    lg = log -p
+    ls = ls-files
+    lolpull = !git stash && git pull --rebase && git stash pop
