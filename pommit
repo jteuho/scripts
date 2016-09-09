@@ -5,11 +5,13 @@ set -e
 git_update="true"
 git_status=""
 mvn_build=""
+mvn_update=""
 init=""
 exclude=""
 include=""
 git_fetch="true"
-while getopts "abcgstpri:fe:" OPT;
+only_master=""
+while getopts "abcgstpurmi:fe:" OPT;
 do
 	case $OPT in
 		a)
@@ -34,6 +36,9 @@ do
 		c)
 			mvn_build="mvn clean"
 			;;
+		u)
+			mvn_update="-U"
+			;;
 		g)
 			git_update="git pull --rebase"
 			;;
@@ -51,6 +56,9 @@ do
 			;;
 		r)
 			git_status="git branch -vv"
+			;;
+		m)
+			only_master="true"
 			;;
 	esac
 done
@@ -98,13 +106,23 @@ do
 	pushd $pro
 	if [[ ! -z "$git_update" ]];
 	then
-		$git_update
+		if [[ ! -z "$only_master" ]];
+		then
+			if [[ `git status -bs` == *"## master"* ]];
+			then
+				$git_update
+			else
+				echo "Not in master, skipping"
+			fi
+		else
+			$git_update
+		fi
 	fi
 	if [[ ! -z "$mvn_build" ]];
 	then
 		if [[ -f "pom.xml" ]];
 		then
-			$mvn_build
+			$mvn_build $mvn_update
 		fi
 	fi
 	popd
