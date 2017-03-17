@@ -4,14 +4,15 @@ set -e
 
 git_update="true"
 git_status=""
-mvn_build=""
+mvn=""
+mvn_install=""
 mvn_update=""
 init=""
 exclude=""
 include=""
 git_fetch="true"
 only_master=""
-while getopts "abcgstpurmi:fe:" OPT;
+while getopts "abcgstpurmni:fe:" OPT;
 do
 	case $OPT in
 		a)
@@ -31,10 +32,12 @@ do
 			include="$include $pro "
 			;;
 		b)
-			mvn_build="mvn install"
+			mvn="mvn"
+			mvn_install="install"
 			;;
 		c)
-			mvn_build="mvn clean"
+			mvn="mvn"
+			mvn_clean="clean"
 			;;
 		u)
 			mvn_update="-U"
@@ -60,6 +63,9 @@ do
 		m)
 			only_master="true"
 			;;
+		n)
+			git_update="git rebase origin/master"
+			;;	
 	esac
 done
 
@@ -118,11 +124,11 @@ do
 			$git_update
 		fi
 	fi
-	if [[ ! -z "$mvn_build" ]];
+	if [[ ! -z "$mvn" ]];
 	then
 		if [[ -f "pom.xml" ]];
 		then
-			$mvn_build $mvn_update
+			$mvn $mvn_clean $mvn_install $mvn_update
 		fi
 	fi
 	popd
