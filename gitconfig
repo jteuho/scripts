@@ -13,6 +13,7 @@
     co = checkout
     br = branch
     df = diff
+    rbm = rebase origin/master
     summary = log --pretty='format:%C(bold green)%h%Creset %Cred%ad%Creset - %s%C(yellow)%d%Creset %C(bold red)<%an>'
     commit = commit --verbose
     amend = commit --verbose --amend
