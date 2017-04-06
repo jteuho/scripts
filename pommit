@@ -12,7 +12,8 @@ exclude=""
 include=""
 git_fetch="true"
 only_master=""
-while getopts "abcgstpurmni:fe:" OPT;
+jump=""
+while getopts "abce:fgi:j:mnprstu" OPT;
 do
 	case $OPT in
 		a)
@@ -66,6 +67,9 @@ do
 		n)
 			git_update="git rebase origin/master"
 			;;	
+		j)
+			jump=`echo $OPTARG | sed -e 's_/$__'`
+			;;
 	esac
 done
 
@@ -91,6 +95,16 @@ then
 			echo $pro not included
 			continue
 		fi
+		
+		if [[ ! -z "$jump" ]];
+		then 
+			if [[ "$jump" != *"$pro"* ]];
+			then
+				echo Skipping $pro
+				continue
+			fi
+			jump=""
+		fi
 		(cd $pro && pwd && $git_fetch && $git_status && echo -e "")
 	done
 	exit 1
@@ -107,6 +121,16 @@ do
 	then
 		echo $pro not included
 		continue
+	fi
+
+	if [[ ! -z "$jump" ]];
+	then 
+		if [[ "$jump" != *"$pro"* ]];
+		then
+			echo Skipping $pro
+			continue
+		fi
+		jump=""
 	fi
 
 	pushd $pro
