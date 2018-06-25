@@ -12,8 +12,9 @@ exclude=""
 include=""
 git_fetch="true"
 only_master=""
+only_changed=""
 jump=""
-while getopts "abce:fgi:j:mnprstu" OPT;
+while getopts "abce:fgi:j:mnoprstu" OPT;
 do
 	case $OPT in
 		a)
@@ -66,7 +67,10 @@ do
 			;;
 		n)
 			git_update="git rebase origin/master"
-			;;	
+			;;
+		o)
+			only_changed="true"
+			;;
 		j)
 			jump=`echo $OPTARG | sed -e 's_/$__'`
 			;;
@@ -105,7 +109,30 @@ then
 			fi
 			jump=""
 		fi
-		(cd $pro && pwd && $git_fetch && $git_status && echo -e "")
+		pushd $pro >/dev/null
+		skip=""
+		if [[ ! -z "$only_master" ]];
+		then
+			if [[ `git status -bs` == *"## master"* ]];
+			then
+				skip="true"
+			fi
+		elif [[ ! -z "$only_changed" ]];
+		then
+			if [[ ! -z "$git_fetch" ]];
+			then
+				$git_fetch
+			fi
+			if [[ `git status -bs` == "## master...origin/master" ]];
+			then
+				skip="true"
+			fi
+		fi
+		if [[ -z "$skip" ]];
+		then
+			pwd && $git_fetch && $git_status && echo -e ""
+		fi
+		popd >/dev/null
 	done
 	exit 1
 fi
