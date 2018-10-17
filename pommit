@@ -89,7 +89,7 @@ if [[ ! -z "$git_status" ]];
 then
 	for pro in $PROJS;
 	do
-		if [[ $exclude == *"$pro"* ]];
+		if [[ $exclude == *" $pro "* ]];
 		then
 			echo $pro excluded
 			continue
