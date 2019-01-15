@@ -4,6 +4,25 @@ use strict;
 # use warnings;
 use warnings  qw(FATAL utf8);
 
+my %substitutes = (
+    "Tibicen Oy   Kymppi Sa"        => 'Juhon Omia',
+    "Alepa Hameentie"               => 'Juhon Omia',
+    "Neste K Sornainen"             => 'Juhon Omia',
+    "R Hki Mellunmaki Metro"        => 'Juhon Omia',
+    "K Market Hameentie 16"         => 'Juhon Omia',
+    "R Hki R-As. Lansisiipi"        => 'Juhon Omia',
+    "R Sornaisten Metro"            => 'Juhon Omia',
+    "Subway Helsinki Sornai"        => 'Subway',
+    'Avecra Oy Stop Station'        => 'Juhon Omia',
+    'Teboil Ruskeasuo 7024'         => 'Juhon Omia',
+    'Alepa Viherniemenkatu'         => 'Juhon Omia',
+    'Asunto Oy Vantaan Kuurankukka' => 'Kuurankukka',
+    'SLM FINLAND OY'                => 'Pizza-online',
+    'GOFORE OY'                     => 'Gofore',
+    'Vfi*tibicen Oy'                => 'Juhon Omia'
+
+);
+
 open(my $inFile, '<:encoding(UTF-8)', './SP')
     or die "Could not open file 'SP' $!";
 
@@ -29,6 +48,9 @@ while (<$inFile>) {
     } else {
         $inflow = $amount;
     }
+
+    $payee = $substitutes{$payee} if defined $substitutes{$payee};
+    # $payee = '' if defined $substitutes{$payee};
 
     print "$date,$payee,,,$outflow,$inflow\n";
 
