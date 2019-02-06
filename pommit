@@ -56,17 +56,11 @@ do
 		t)
 			git_status="git stash list"
 			;;
-		p)
-			git_update="git push"
-			;;
 		r)
 			git_status="git branch -vv"
 			;;
 		m)
 			only_master="true"
-			;;
-		n)
-			git_update="git rebase origin/master"
 			;;
 		o)
 			only_changed="true"
