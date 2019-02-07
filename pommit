@@ -96,11 +96,12 @@ then
 		
 		if [[ ! -z "$jump" ]];
 		then 
-			if [[ "$jump" != *"$pro"* ]];
+			if [[ "$jump" != "$pro" ]];
 			then
 				echo Skipping $pro
 				continue
 			fi
+			echo "jump '${jump}' pro '${pro}'"
 			jump=""
 		fi
 		pushd $pro >/dev/null
@@ -146,7 +147,7 @@ do
 
 	if [[ ! -z "$jump" ]];
 	then 
-		if [[ "$jump" != *"$pro"* ]];
+		if [[ "$jump" != "$pro" ]];
 		then
 			echo Skipping $pro
 			continue
