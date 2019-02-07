@@ -13,13 +13,14 @@
     co = checkout
     br = branch
     df = diff
-    rbm = rebase origin/master
+    rbm = !git fetch && git rebase origin/master
     summary = log --pretty='format:%C(bold green)%h%Creset %Cred%ad%Creset - %s%C(yellow)%d%Creset %C(bold red)<%an>'
     commit = commit --verbose
-    amend = commit --verbose --amend
+    amend = commit --verbose --amend --all
     glog = log --graph --pretty=oneline --abbrev-commit --decorate
     gla = log --graph --pretty=format:'%C(bold green)%h%Creset - %s%C(bold yellow)%d%Creset %C(bold blue)(%cr)%Creset %C(bold red)<%an>%Creset' --abbrev-commit --date=short --branches
     wdiff = diff --word-diff
     lg = log -p
     ls = ls-files
     lolpull = !git stash && git pull --rebase && git stash pop
+    lolrbm = !git stash && git fetch && git rebase origin/master && git stash pop
