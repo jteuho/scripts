@@ -1,26 +1,13 @@
 #!/usr/bin/perl
 
 use strict;
-# use warnings;
 use warnings  qw(FATAL utf8);
 
 my %substitutes = (
-    "Tibicen Oy   Kymppi Sa"        => 'Juhon Omia',
-    "Alepa Hameentie"               => 'Juhon Omia',
-    "Neste K Sornainen"             => 'Juhon Omia',
-    "R Hki Mellunmaki Metro"        => 'Juhon Omia',
-    "K Market Hameentie 16"         => 'Juhon Omia',
-    "R Hki R-As. Lansisiipi"        => 'Juhon Omia',
-    "R Sornaisten Metro"            => 'Juhon Omia',
     "Subway Helsinki Sornai"        => 'Subway',
-    'Avecra Oy Stop Station'        => 'Juhon Omia',
-    'Teboil Ruskeasuo 7024'         => 'Juhon Omia',
-    'Alepa Viherniemenkatu'         => 'Juhon Omia',
     'Asunto Oy Vantaan Kuurankukka' => 'Kuurankukka',
     'SLM FINLAND OY'                => 'Pizza-online',
-    'GOFORE OY'                     => 'Gofore',
-    'Vfi*tibicen Oy'                => 'Juhon Omia'
-
+    'GOFORE OY'                     => 'Gofore'
 );
 
 open(my $inFile, '<:encoding(UTF-8)', './SP')
@@ -30,13 +17,16 @@ print "Date,Payee,Category,Memo,Outflow,Inflow\n";
 while (<$inFile>) {
     chomp;
     (my $date, my $payee, my $amount, my $total, my $status, my $check) = split /;/;
-    next if ($date eq '"Pvm"');
 
-    next if $check eq '"Ei"';
+    next if ($date eq '"Pvm"');
+    next if ($check eq '"Ei"');
+
     $date =~ s/"//g;
     $date =~ s/\./\//g;
+
     $payee =~ s/"//g;
     $payee =~ s/\s+\)+$//;
+
     $amount =~ s/"//g;
     $amount =~ s/ //g;
     $amount =~ s/,/./;
@@ -50,8 +40,6 @@ while (<$inFile>) {
     }
 
     $payee = $substitutes{$payee} if defined $substitutes{$payee};
-    # $payee = '' if defined $substitutes{$payee};
 
     print "$date,$payee,,,$outflow,$inflow\n";
-
 }

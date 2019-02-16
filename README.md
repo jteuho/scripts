@@ -1,4 +1,17 @@
-# misc scripts
+# misc scripts and dotfiles
+
+## gitconfig
+
+(Mostly) aliases for git. Include in your .gitconfig:
+
+```ini
+[include]
+        path = scripts/gitconfig
+```
+
+## bashrc
+
+Stuff I want to find in my bash.
 
 ## hetu
 
