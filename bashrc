@@ -28,8 +28,8 @@ function prompt {
 	local LIGHT_CYAN="\[\033[1;36m\]"
 	local LIGHT_BLUE="\[\033[1;34m\]"
 
-	# Set term title to 'user@host pwd'
-	local TITLE="\[\033];\u@\h \w\007\]"
+	# Set term title to $pwd
+	local TITLE="\[\033];\w\007\]"
 
 	PS_PREFIX="$TITLE$LIGHT_CYAN[\$(date +%H:%M)]$LIGHT_BLUE"
 	PS_SUFFIX="$LIGHT_CYAN\w$NO_COLOR \n\$ "

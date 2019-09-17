@@ -10,6 +10,7 @@
 [alias]
     ci = commit
     st = status
+    fst = !git fetch && git status
     co = checkout
     br = branch
     df = diff
