@@ -19,7 +19,7 @@ do
 	case $OPT in
 		a)
 			echo Initializing .pommit_projs
-			find . -type d -maxdepth 1 -mindepth 1 -exec echo 'PROJS="$PROJS {}"' ';' \
+			find . -maxdepth 1 -mindepth 1 -type d -exec echo 'PROJS="$PROJS {}"' ';' \
 				| sed -e s_\./__ \
 				| tee .pommit_projs
 			echo done
