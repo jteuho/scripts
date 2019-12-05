@@ -1,37 +1,80 @@
 #!/bin/bash
 
-PID_BASE="${HOME}/.ssh_pipe_rova_to_dev"
+PID_BASE="${HOME}/.ssh_pipe_to_dev"
 
-VAREUI_PIDFILE="${PID_BASE}_vareui"
-VAREUI_FORWARD="8104:localhost:8104"
-VAREUI_PROXY="rova-demo-front"
+vareui_FORWARD="8104:localhost:8104"
+vareui_PROXY="rova-demo-front"
+
+xroaddev_FORWARD="8999:10.35.33.215:80"
+xroaddev_PROXY="proxy.kapa.ware.fi"
+
+xroadtest_FORWARD="8900:10.35.33.66:8900"
+xroadtest_PROXY="proxy.kapa.ware.fi"
+
+all=("vareui" "xroaddev" "xroadtest")
 
 kill=""
-while getopts "k" OPT;
+pipes=$@
+while getopts "kah" OPT;
 do
   case $OPT in
   k)
     kill="/bin/kill -15 "
+    ARGS=( "$@" );
+    pipes=( "${ARGS[@]:1}" )
+    ;;
+  a)
+    pipes=("${all[@]}")
+    ;;
+  h)
+    pipes=()
     ;;
   esac
 done
 
-for PIPE in VAREUI;
+if [ ${#pipes[@]} -eq 0 ];
+then
+  echo "Usage: $0 [-k] [-a] [pipe...]"
+  echo "    -k    Close pipe(s)"
+  echo -e "    -a    Open or close all pipes\n"
+  echo "    Opens pipe(s) by default. Use -k to close. Unless -a is given,"
+  echo -e "    pipe names must be listed as parameters.\n"
+  echo "    Possible pipes:"
+  for PIPE in ${all[@]};
+  do
+    echo "    - $PIPE"
+  done
+  exit 1
+fi
+
+for PIPE in ${pipes[@]};
 do
-  pidfile="${PIPE}_PIDFILE"
+  pidfile="${PID_BASE}_${PIPE}"
   forwarding="${PIPE}_FORWARD"
   proxy="${PIPE}_PROXY"
 
+  if [ -z ${!forwarding} ];
+  then
+    echo "Unknown pipe ${PIPE}"
+    exit 1
+  fi
+
   if [ ! -z "${kill}" ];
   then
-    pid=`cat ${!pidfile}`
-    $kill $pid
+    echo "Kill $PIPE"
+    if [[ -e $pidfile ]];
+    then
+      pid=`cat ${pidfile}`
+      $kill $pid
+    else
+      echo "$pidfile doesn't exist"
+    fi
   else
     pgrep -f ${!forwarding} >/dev/null
     if [ $? -ne "0" ];
     then
       echo "Starting autossh to ${PIPE}"
-      AUTOSSH_PIDFILE=${!pidfile} autossh -M 0 -f \
+      AUTOSSH_PIDFILE=${pidfile} autossh -M 0 -f \
       -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" \
       -N -L ${!forwarding} ${!proxy}
     else
