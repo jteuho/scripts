@@ -11,7 +11,13 @@ xroaddev_PROXY="proxy.kapa.ware.fi"
 xroadtest_FORWARD="8900:10.35.33.66:8900"
 xroadtest_PROXY="proxy.kapa.ware.fi"
 
-all=("vareui" "xroaddev" "xroadtest")
+fare_FORWARD="8889:localhost:8888"
+fare_PROXY="rova-demo-registry"
+
+search_FORWARD="8011:localhost:8011"
+search_PROXY="rova-demo-backend"
+
+all=("vareui" "xroaddev" "xroadtest" "search" "fare")
 
 kill=""
 pipes=$@

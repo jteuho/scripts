@@ -1,0 +1,31 @@
+#!/bin/sh
+
+forwarding="8989:10.35.33.215:80"
+#forwarding="8989:xroad-dev:80"
+proxy="proxy.kapa.ware.fi"
+
+pidfile="${HOME}/.ssh_xroad_pid"
+AUTOSSH_PIDFILE=${pidfile}
+kill=""
+while getopts "k" OPT;
+do
+	case $OPT in
+	    k)
+		    kill="/bin/kill -15 `cat $pidfile`"
+		    rm $pidfile
+		    ;;
+	esac
+done
+
+pgrep -f $forwarding >/dev/null
+if [ $? -ne "0" ]; then
+	echo "Starting autossh for XRoad server access."
+	AUTOSSH_PIDFILE=${pidfile} autossh -M 0 -q -f -N -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" -L $forwarding $proxy
+else
+	if [[ ! -z "$kill" ]];
+	then
+		$kill
+	else
+		echo "ERROR: Autossh is already running."
+	fi
+fi
