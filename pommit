@@ -62,12 +62,17 @@ do
 	esac
 done
 
+fail_on_error() {
+	echo "$1"
+	exit 1
+}
+
 if [[ -f .pommit_projs ]];
 then
   # shellcheck disable=SC1091
 	. .pommit_projs
 else
-	echo "Not initialized."
+	fail_on_error "Not initialized."
 	exit 1
 fi
 
@@ -79,7 +84,7 @@ for pro in $PROJS; do
   if [[ -n "$jump" ]] && [[ "$jump" != "$pro" ]]; then continue; fi
   jump=""
 
-  if [[ -n "$git_fetch" ]]; then (cd "$pro" ; $git_fetch); fi
+  if [[ -n "$git_fetch" ]]; then (cd "$pro" ; $git_fetch || fail_on_error "Fetching $pro failed"); fi
 
   if [[ -n "$only_changed" ]]; then
     if [[ $(cd "$pro" ; git status -bs) == "## master...origin/master" ]]; then continue; fi
