@@ -4,22 +4,19 @@ set -euo pipefail
 
 git_update="true"
 git_status=""
-mvn=""
-mvn_install=""
-mvn_update=""
 exclude=""
 include=""
 git_fetch="true"
 only_master=""
 only_changed=""
 jump=""
-while getopts "abce:fgi:j:morstu" OPT;
+while getopts "ae:fgi:j:morst" OPT;
 do
 	case $OPT in
 		a)
 			echo Initializing .pommit_projs
-      echo 'PROJS=""' >> .pommit_projs 
-      # shellcheck disable=SC2016
+      		echo 'PROJS=""' >> .pommit_projs 
+      		# shellcheck disable=SC2016
 			find . -maxdepth 1 -mindepth 1 -type d -exec echo 'PROJS="$PROJS {}"' ';' \
 				| sed -e s_\./__ \
 				| tee .pommit_projs
@@ -33,17 +30,6 @@ do
 		i)
 			pro=${$OPTARG/\/$//}
 			include="$include $pro "
-			;;
-		b)
-			mvn="mvn"
-			mvn_install="install"
-			;;
-		c)
-			mvn="mvn"
-			mvn_clean="clean"
-			;;
-		u)
-			mvn_update="-U"
 			;;
 		g)
 			git_update="git pull --rebase"
@@ -113,9 +99,5 @@ for pro in $REAL_PROJS; do
     if [[ -n "$git_update" ]]; then
       $git_update
     fi
-
-    if [[ -n "$mvn" ]] && [[ -f "pom.xml" ]]; then
-      $mvn $mvn_clean $mvn_install $mvn_update
-    fi
-  )
+	)
 done
