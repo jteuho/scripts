@@ -7,8 +7,18 @@
 [merge]
     ff = false
 
+[log]
+        decorate = full
+
+[push]
+        default = current
+
+[core]
+        pager = cat
+        excludesfile = ~/.gitignore
+
 [alias]
-    ci = commit
+    ci = commit --verbose
     st = status
     fst = !git fetch && git status
     co = checkout
@@ -16,10 +26,5 @@
     df = diff
     commit = commit --verbose
     amend = commit --verbose --amend --all
-    glog = log --graph --pretty=oneline --abbrev-commit --decorate
-    wdiff = diff --word-diff
     lg = log --oneline 
     ls = ls-files
-    rbm = !git fetch && git rebase origin/master
-    lolpull = !git stash && git pull --rebase && git stash pop
-    lolrbm = !git stash && git fetch && git rebase origin/master && git stash pop
