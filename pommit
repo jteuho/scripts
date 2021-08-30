@@ -78,8 +78,8 @@ fi
 
 REAL_PROJS=""
 for pro in $PROJS; do
-  if [[ $exclude == *" $pro "* ]]; then continue; fi
-  if [[ -n "$include" ]] && [[ $include != *" $pro "* ]]; then continue; fi
+  if [[ $exclude == *" $pro"* ]]; then continue; fi
+  if [[ -n "$include" ]] && [[ $include != *" $pro"* ]]; then continue; fi
   if [[ -n "$only_master" ]] && [[ $(cd "$pro"; git status -bs) != *"## master"* ]]; then continue; fi
   if [[ -n "$jump" ]] && [[ "$jump" != "$pro" ]]; then continue; fi
   jump=""
