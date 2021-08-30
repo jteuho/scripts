@@ -1,36 +1,37 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 git_update="true"
 git_status=""
 mvn=""
 mvn_install=""
 mvn_update=""
-init=""
 exclude=""
 include=""
 git_fetch="true"
 only_master=""
 only_changed=""
 jump=""
-while getopts "abce:fgi:j:mnoprstu" OPT;
+while getopts "abce:fgi:j:morstu" OPT;
 do
 	case $OPT in
 		a)
 			echo Initializing .pommit_projs
+      echo 'PROJS=""' >> .pommit_projs 
+      # shellcheck disable=SC2016
 			find . -maxdepth 1 -mindepth 1 -type d -exec echo 'PROJS="$PROJS {}"' ';' \
 				| sed -e s_\./__ \
 				| tee .pommit_projs
-			echo done
+			echo "done"
 			exit 0
 			;;
 		e)
-			pro=`echo $OPTARG | sed -e 's_/$__'`
+			pro=${$OPTARG/\/$//}
 			exclude="$exclude $pro"
 			;;
 		i)
-			pro=`echo $OPTARG | sed -e 's_/$__'`
+			pro=${$OPTARG/\/$//}
 			include="$include $pro "
 			;;
 		b)
@@ -66,116 +67,55 @@ do
 			only_changed="true"
 			;;
 		j)
-			jump=`echo $OPTARG | sed -e 's_/$__'`
+			jump=${$OPTARG/\/$//}
 			;;
+    *)
+      echo "Unknown option"
+      exit 1
+      ;;
 	esac
 done
 
 if [[ -f .pommit_projs ]];
 then
+  # shellcheck disable=SC1091
 	. .pommit_projs
 else
 	echo "Not initialized."
 	exit 1
 fi
 
-if [[ ! -z "$git_status" ]];
-then
-	for pro in $PROJS;
-	do
-		if [[ $exclude == *" $pro "* ]];
-		then
-			echo $pro excluded
-			continue
-		fi
-		if [[ ! -z "$include" && $include != *" $pro "* ]];
-		then
-			echo $pro not included
-			continue
-		fi
-		
-		if [[ ! -z "$jump" ]];
-		then 
-			if [[ "$jump" != "$pro" ]];
-			then
-				echo Skipping $pro
-				continue
-			fi
-			echo "jump '${jump}' pro '${pro}'"
-			jump=""
-		fi
-		pushd $pro >/dev/null
-		skip=""
-		if [[ ! -z "$only_master" ]];
-		then
-			if [[ `git status -bs` == *"## master"* ]];
-			then
-				skip="true"
-			fi
-		elif [[ ! -z "$only_changed" ]];
-		then
-			if [[ ! -z "$git_fetch" ]];
-			then
-				$git_fetch
-			fi
-			if [[ `git status -bs` == "## master...origin/master" ]];
-			then
-				skip="true"
-			fi
-		fi
-		if [[ -z "$skip" ]];
-		then
-			pwd && $git_fetch && $git_status && echo -e ""
-		fi
-		popd >/dev/null
+REAL_PROJS=""
+for pro in $PROJS; do
+  if [[ $exclude == *" $pro "* ]]; then continue; fi
+  if [[ -n "$include" ]] && [[ $include != *" $pro "* ]]; then continue; fi
+  if [[ -n "$only_master" ]] && [[ $(cd "$pro"; git status -bs) != *"## master"* ]]; then continue; fi
+  if [[ -n "$jump" ]] && [[ "$jump" != "$pro" ]]; then continue; fi
+  jump=""
+
+  if [[ -n "$git_fetch" ]]; then (cd "$pro" ; $git_fetch); fi
+
+  if [[ -n "$only_changed" ]]; then
+    if [[ $(cd "$pro" ; git status -bs) == "## master...origin/master" ]]; then continue; fi
+  fi
+  REAL_PROJS="$REAL_PROJS $pro"
+done
+
+if [[ -n "$git_status" ]]; then
+	for pro in $REAL_PROJS; do
+    (cd "$pro"; pwd && $git_status && echo -e "")
 	done
-	exit 1
+	exit 0
 fi
 
-for pro in $PROJS;
-do
-	if [[ $exclude == *"$pro"* ]];
-	then
-		echo $pro excluded
-		continue
-	fi
-	if [[ ! -z "$include" && $include != *" $pro "* ]];
-	then
-		echo $pro not included
-		continue
-	fi
+for pro in $REAL_PROJS; do
+	(cd "$pro"
+    if [[ -n "$git_update" ]]; then
+      $git_update
+    fi
 
-	if [[ ! -z "$jump" ]];
-	then 
-		if [[ "$jump" != "$pro" ]];
-		then
-			echo Skipping $pro
-			continue
-		fi
-		jump=""
-	fi
-
-	pushd $pro
-	if [[ ! -z "$git_update" ]];
-	then
-		if [[ ! -z "$only_master" ]];
-		then
-			if [[ `git status -bs` == *"## master"* ]];
-			then
-				$git_update
-			else
-				echo "Not in master, skipping"
-			fi
-		else
-			$git_update
-		fi
-	fi
-	if [[ ! -z "$mvn" ]];
-	then
-		if [[ -f "pom.xml" ]];
-		then
-			$mvn $mvn_clean $mvn_install $mvn_update
-		fi
-	fi
-	popd
+    if [[ -n "$mvn" ]] && [[ -f "pom.xml" ]]; then
+      $mvn $mvn_clean $mvn_install $mvn_update
+    fi
+  )
 done
