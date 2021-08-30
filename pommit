@@ -10,7 +10,7 @@ git_fetch="true"
 only_master=""
 only_changed=""
 jump=""
-while getopts "ae:fgi:j:morst" OPT;
+while getopts "ae:i:j:pfstbmo" OPT;
 do
 	case $OPT in
 		a)
@@ -31,7 +31,7 @@ do
 			pro=${$OPTARG/\/$//}
 			include="$include $pro "
 			;;
-		g)
+		p)
 			git_update="git pull --rebase"
 			;;
 		f)
@@ -43,7 +43,7 @@ do
 		t)
 			git_status="git stash list"
 			;;
-		r)
+		b)
 			git_status="git branch -vv"
 			;;
 		m)
