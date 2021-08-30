@@ -24,11 +24,11 @@ do
 			exit 0
 			;;
 		e)
-			pro=${$OPTARG/\/$//}
+			pro=$(echo "$OPTARG" | sed -e 's/\/$//')
 			exclude="$exclude $pro"
 			;;
 		i)
-			pro=${$OPTARG/\/$//}
+			pro=$(echo "$OPTARG" | sed -e 's/\/$//')
 			include="$include $pro "
 			;;
 		p)
@@ -53,7 +53,7 @@ do
 			only_changed="true"
 			;;
 		j)
-			jump=${$OPTARG/\/$//}
+			jump=$(echo "$OPTARG" | sed -e 's/\/$//')
 			;;
     *)
       echo "Unknown option"
@@ -102,7 +102,7 @@ fi
 for pro in $REAL_PROJS; do
 	(cd "$pro"
     if [[ -n "$git_update" ]]; then
-      $git_update
+      $git_update || fail_on_error "Git operation failed on $pro"
     fi
 	)
 done
