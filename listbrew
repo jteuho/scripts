@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+function usage() {
+    cat <<EOF
+
+List packages installed with brew, separating dependencies from others.
+By default show all.
+
+Usage: ${0} [ -d | -n | -h ]
+    -d  Show only packages installed as dependency
+    -h  This message
+EOF
+}
+
+if [[ "${1}" = "-h" ]];
+then
+    usage
+    exit 0
+fi
+
+show_deps="default"
+while getopts "dnh" OPT;
+do
+    case $OPT in
+    d)
+        show_deps="yes"
+        ;;
+    h)
+        usage
+        exit 0
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+    esac
+done
+
+installed=$(brew info --json --installed)
+
+if [[ "$show_deps" = "default" ]];
+then
+    non_deps=$(echo "$installed" | \
+        jq -r '.[] | if .installed[0].installed_as_dependency then "" else .name end' | \
+        sort | uniq )
+        
+    for i in $non_deps; do
+        echo "non-deps: $i"
+    done
+fi
+
+deps=$(echo "$installed" | \
+    jq -r '.[] | if .installed[0].installed_as_dependency then .name else "" end' | \
+    sort | uniq )
+
+for i in $deps; do
+    echo "deps: $i"
+done
+
+
