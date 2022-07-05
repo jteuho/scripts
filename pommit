@@ -13,7 +13,7 @@ Usage: ${0} [-a] [-e project] [-i project] [-j project] [-p -f -s -t -b -m -o -h
 	-f			Fetch from remote
 	-t			List stashes
 	-b			List branches
-	-m			Only master. Skip every PROJECT not tracking master-branch
+	-m			Only main. Skip every PROJECT not tracking its default branch
 	-o			Only changed. Skip every PROJECT not having changes locally or remotely
 	-h			This message
 EOL
@@ -22,10 +22,11 @@ exit 0
 
 git_update="true"
 git_status=""
+mvn_cmd=""
 exclude=""
 include=""
 git_fetch="true"
-only_master=""
+only_main=""
 only_changed=""
 jump=""
 while getopts "ae:i:j:pfstbmoh" OPT; do
@@ -41,7 +42,7 @@ while getopts "ae:i:j:pfstbmoh" OPT; do
 		exit 0
 		;;
 	b)
-		git_status="git branch -vv"
+		mvn_cmd="mvn -U clean install"
 		;;
 	e)
 		pro=$(echo "$OPTARG" | sed -e 's/\/$//')
@@ -61,14 +62,14 @@ while getopts "ae:i:j:pfstbmoh" OPT; do
 		jump=$(echo "$OPTARG" | sed -e 's/\/$//')
 		;;
 	m)
-		only_master="true"
+		only_main="true"
 		;;
 	o)
 		only_changed="true"
 		;;
 	p)
 		git_update="git pull --rebase"
-		only_master="true"
+		only_main="true"
 		;;
 	s)
 		git_status="git status --short --branch"
@@ -96,38 +97,38 @@ else
 	exit 1
 fi
 
+function is_default_branch() {
+	default_branch=$(cd "$1"; git rev-parse --abbrev-ref origin/HEAD)
+	current_tracking=$(cd "$1"; git status --porcelain --branch |
+		head -n1 | 
+		sed -e 's/^## .*\.\.\.//' |
+		sed -e 's/ .*$//')
+	[[ "$default_branch" == "$current_tracking" ]] 
+}
+
+function is_up_to_date() {
+	[[ "$(cd "$1"; git status --porcelain --branch --no-ahead-behind | head -n1 | cut -d '[' -f 2)" != "different]" ]] &&
+	[[ $(cd "$1"; git status --porcelain) == "" ]]
+}
+
 REAL_PROJS=""
 for pro in $PROJS; do
 	if [[ $exclude == *" $pro"* ]]; then continue; fi
 	if [[ -n "$include" ]] && [[ $include != *" $pro"* ]]; then continue; fi
 	if [[ -n "$jump" ]] && [[ "$jump" != "$pro" ]]; then continue; fi
+	if [[ -n "$only_main" ]] && ! is_default_branch "$pro"; then continue; fi
 	jump=""
+		
+	if [[ -n "$git_fetch" ]]; then (cd "$pro"; $git_fetch || fail_on_error "Fetching $pro failed"); fi
 
-	if [[ -n "$only_master" ]] && [[ $(
-		cd "$pro"
-		git status -bs
-	) != *"## master"* ]]; then continue; fi
+	if [[ -n "$only_changed" ]] && is_up_to_date "$pro" && is_default_branch "$pro"; then continue; fi
 
-	if [[ -n "$git_fetch" ]]; then (
-		cd "$pro"
-		$git_fetch || fail_on_error "Fetching $pro failed"
-	); fi
-
-	if [[ -n "$only_changed" ]]; then
-		if [[ $(
-			cd "$pro"
-			git status -bs
-		) == "## master...origin/master" ]]; then continue; fi
-	fi
 	REAL_PROJS="$REAL_PROJS $pro"
 done
 
 if [[ -n "$git_status" ]]; then
 	for pro in $REAL_PROJS; do
-		(
-			cd "$pro"
-			pwd && $git_status && echo -e ""
-		)
+		(cd "$pro"; pwd && $git_status && echo -e "")
 	done
 	exit 0
 fi
@@ -137,6 +138,10 @@ for pro in $REAL_PROJS; do
 		cd "$pro"
 		if [[ -n "$git_update" ]]; then
 			$git_update || fail_on_error "Git operation failed on $pro"
+		fi
+
+		if [[ -n "$mvn_cmd" && -e "./pom.xml" ]]; then
+			$mvn_cmd
 		fi
 	)
 done
